@@ -1,58 +1,177 @@
 'use client'
 
+import { Loader2, Search, X } from 'lucide-react'
+
+import { usePokemonData } from '@/hooks/usePokemonData'
+import {
+  CARD_GAP,
+  usePokemonVirtualGrid
+} from '@/hooks/usePokemonVirtualGrid'
+
+import { PokemonCard } from './PokemonCard'
 import { Input } from './ui/input'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type Pokemon = {
-  attack: number
-  defense: number
-  description: string
-  generation: number
-  height: number
-  hp: number
-  id: number
-  imageUrl: string
-  isLegendary?: boolean
-  name: string
-  specialAttack: number
-  specialDefense: number
-  speed: number
-  types: string[]
-  weight: number
-}
+const SKELETON_COUNT = 8
 
-const colors: Record<string, string> = {
-  Bug: 'bg-lime-500 hover:bg-lime-600',
-  Dark: 'bg-slate-800 hover:bg-slate-900',
-  Dragon: 'bg-indigo-700 hover:bg-indigo-800',
-  Electric: 'bg-yellow-500 hover:bg-yellow-600',
-  Fairy: 'bg-pink-300 hover:bg-pink-400',
-  Fighting: 'bg-red-700 hover:bg-red-800',
-  Fire: 'bg-red-500 hover:bg-red-600',
-  Flying: 'bg-indigo-400 hover:bg-indigo-500',
-  Ghost: 'bg-purple-700 hover:bg-purple-800',
-  Grass: 'bg-green-500 hover:bg-green-600',
-  Ground: 'bg-amber-600 hover:bg-amber-700',
-  Ice: 'bg-cyan-300 hover:bg-cyan-400',
-  Normal: 'bg-slate-400 hover:bg-slate-500',
-  Poison: 'bg-purple-500 hover:bg-purple-600',
-  Psychic: 'bg-pink-500 hover:bg-pink-600',
-  Rock: 'bg-amber-700 hover:bg-amber-800',
-  Steel: 'bg-slate-500 hover:bg-slate-600',
-  Water: 'bg-blue-500 hover:bg-blue-600'
-}
+export function PokemonGrid() {
+  const {
+    allPokemon,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetchingNextPage,
+    isInitialLoad,
+    isLoading,
+    isSearchPending,
+    refetch,
+    search,
+    setSearch,
+    statMaxes
+  } = usePokemonData()
 
-// just a little helper guy
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getTypeColor = (type: string) => {
-  return colors[type] || 'bg-slate-400 hover:bg-slate-500'
-}
+  const {
+    columns,
+    gridRef,
+    measureElement,
+    rowCount,
+    scrollMargin,
+    totalSize,
+    virtualRows
+  } = usePokemonVirtualGrid({
+    fetchNextPage: () => void fetchNextPage(),
+    hasNextPage,
+    isFetchingNextPage,
+    itemCount: allPokemon.length
+  })
 
-export default function PokemonGrid() {
   return (
-    <div>
-      <Input placeholder="Search" type="text" />
-      <div>Pokemon Grid</div>
+    <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+          Pokémon Explorer
+        </h1>
+
+        <search className="relative max-w-md">
+          <Input
+            aria-label="Search Pokémon by name, description, or type"
+            className="h-12 rounded-full border-white/80 bg-white/90 px-5 pr-12 text-base shadow-[0_18px_40px_rgba(148,163,184,0.18)] md:text-base"
+            onChange={event => setSearch(event.target.value)}
+            placeholder="Search by name, description, or type"
+            type="text"
+            value={search}
+          />
+          {isSearchPending || isLoading ? (
+            <Loader2 className="text-muted-foreground pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2 animate-spin" />
+          ) : search ? (
+            <button
+              aria-label="Clear search"
+              className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full p-0.5 text-slate-400 transition-colors hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              onClick={() => setSearch('')}
+              type="button"
+            >
+              <X className="size-4" />
+            </button>
+          ) : (
+            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2" />
+          )}
+        </search>
+      </div>
+
+      <div aria-live="polite" className="sr-only">
+        {isInitialLoad
+          ? 'Loading Pokémon'
+          : isError
+            ? 'Failed to load Pokémon'
+            : `${allPokemon.length} Pokémon found`}
+      </div>
+
+      {isInitialLoad && (
+        <div
+          className="grid gap-6"
+          style={{
+            gridTemplateColumns: `repeat(${columns || 1}, minmax(0, 1fr))`
+          }}
+        >
+          {Array.from({ length: SKELETON_COUNT }, (_, index) => (
+            <SkeletonCard key={index} />
+          ))}
+        </div>
+      )}
+
+      {isError && (
+        <div className="flex flex-col items-start gap-3">
+          <p className="text-destructive text-sm">Could not load Pokémon.</p>
+          <button
+            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            onClick={() => void refetch()}
+            type="button"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
+      {!isInitialLoad && !isError && allPokemon.length === 0 && (
+        <p className="text-muted-foreground text-sm">No Pokémon found.</p>
+      )}
+
+      <div ref={gridRef}>
+        <div
+          className="relative"
+          style={{ height: rowCount > 0 ? totalSize : 0 }}
+        >
+          {virtualRows.map(virtualRow => {
+            const startIndex = virtualRow.index * columns
+            const rowPokemon = allPokemon.slice(
+              startIndex,
+              startIndex + columns
+            )
+            return (
+              <div
+                className="absolute left-0 top-0 grid w-full items-start will-change-transform"
+                data-index={virtualRow.index}
+                key={virtualRow.key}
+                ref={measureElement}
+                style={{
+                  contain: 'layout style paint',
+                  gap: `${CARD_GAP}px`,
+                  gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                  transform: `translateY(${virtualRow.start - scrollMargin}px)`
+                }}
+              >
+                {rowPokemon.map(pokemon => (
+                  <PokemonCard
+                    key={pokemon.id}
+                    pokemon={pokemon}
+                    statMaxes={statMaxes}
+                  />
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {isFetchingNextPage && allPokemon.length > 0 && (
+        <p className="text-muted-foreground text-center text-sm">
+          Loading more…
+        </p>
+      )}
+    </div>
+  )
+}
+
+function SkeletonCard() {
+  return (
+    <div className="animate-pulse overflow-hidden rounded-xl">
+      <div className="h-72 bg-slate-200" />
+      <div className="flex flex-col gap-3 px-6 pb-6 pt-5">
+        <div className="h-7 w-3/5 rounded bg-slate-200" />
+        <div className="flex gap-2">
+          <div className="h-6 w-20 rounded bg-slate-200" />
+          <div className="h-6 w-20 rounded bg-slate-200" />
+        </div>
+      </div>
     </div>
   )
 }
