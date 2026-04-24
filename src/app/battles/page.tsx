@@ -11,7 +11,7 @@ export default function BattlesPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
+    <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Battles</h1>

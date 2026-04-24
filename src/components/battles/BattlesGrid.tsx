@@ -68,7 +68,8 @@ export function BattlesGrid() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['battles', 1],
     queryFn: () => fetchBattles(1, PAGE_SIZE),
-    placeholderData: (prev) => prev
+    placeholderData: (prev) => prev,
+    refetchInterval: 1500
   })
 
   if (isLoading) {
