@@ -8,7 +8,11 @@ import { memo, useState } from 'react'
 import type { PokemonStatMaxes } from '@/types/pokemon'
 import type { Pokemon } from '@/types/pokemon'
 
-import { getPokemonTypeBadgeClass } from '@/lib/pokemonTypeColors'
+import {
+  getPokemonTypeAccentTextClass,
+  getPokemonTypeBadgeClass,
+  getPokemonTypeHeroClass
+} from '@/lib/pokemonTypeColors'
 import { capitalizePokemonName, cn } from '@/lib/utils'
 
 import { PokemonStats } from './PokemonStats'
@@ -26,6 +30,7 @@ export const PokemonCard = memo(function PokemonCard({
 }: PokemonCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [hasImageLoadError, setHasImageLoadError] = useState(false)
+  const primaryType = pokemon.types[0] ?? 'Normal'
 
   const toggleExpanded = () => {
     setExpanded(previousExpanded => !previousExpanded)
@@ -42,7 +47,7 @@ export const PokemonCard = memo(function PokemonCard({
     <article
       aria-expanded={expanded}
       className={cn(
-        'group relative cursor-pointer overflow-hidden rounded-xl transition-[transform,color] duration-300 ease-out hover:-translate-y-2 hover:scale-[1.01] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+        'group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200/70 bg-white/95 shadow-md transition-[transform,color,box-shadow] duration-300 ease-out hover:-translate-y-2 hover:scale-[1.01] hover:shadow-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
         className
       )}
       onClick={toggleExpanded}
@@ -50,15 +55,21 @@ export const PokemonCard = memo(function PokemonCard({
       role="button"
       tabIndex={0}
     >
-      <div className="relative h-72 overflow-hidden rounded-b-xl bg-slate-100">
+      <div
+        className={cn(
+          'relative h-72 overflow-hidden rounded-b-xl p-3',
+          getPokemonTypeHeroClass(primaryType)
+        )}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/85" />
         {hasImageLoadError ? (
-          <div className="flex h-full items-center justify-center bg-slate-200 text-sm text-slate-400">
+          <div className="flex h-full items-center justify-center rounded-lg bg-white/40 text-sm text-slate-200">
             No image
           </div>
         ) : (
           <Image
             alt={capitalizePokemonName(pokemon.name)}
-            className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+            className="object-contain object-center p-3 drop-shadow-[0_14px_18px_rgba(15,23,42,0.25)] transition-transform duration-500 ease-out group-hover:scale-[1.04]"
             fill
             onError={() => setHasImageLoadError(true)}
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -68,7 +79,12 @@ export const PokemonCard = memo(function PokemonCard({
       </div>
 
       <div className="flex flex-col gap-3 px-6 pb-6 pt-5">
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-950 transition-colors duration-300 group-hover:text-indigo-700">
+        <h2
+          className={cn(
+            'text-2xl font-semibold tracking-tight text-slate-950 transition-colors duration-300',
+            getPokemonTypeAccentTextClass(primaryType)
+          )}
+        >
           {capitalizePokemonName(pokemon.name)}
         </h2>
 
