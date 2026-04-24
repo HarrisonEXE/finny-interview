@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       {
         hostname: 'picsum.photos',
         protocol: 'https'
+      },
+      {
+        hostname: 'raw.githubusercontent.com',
+        protocol: 'https'
       }
     ]
   }
