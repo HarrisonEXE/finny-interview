@@ -117,3 +117,53 @@ export async function removeFromCollection(pokemonId: number): Promise<void> {
     throw new Error('Failed to remove from collection')
   }
 }
+
+// ---------------------------------------------------------------------------
+// Battle API
+// ---------------------------------------------------------------------------
+
+export const BattleSchema = z.object({
+  battle_id: z.string(),
+  pokemon1_id: z.number(),
+  pokemon1_name: z.string(),
+  pokemon2_id: z.number(),
+  pokemon2_name: z.string(),
+  status: z.enum(['queued', 'in_progress', 'completed']),
+  winner_id: z.number().nullable().optional(),
+  winner_name: z.string().nullable().optional(),
+  total_turns: z.number().nullable().optional(),
+  created_at: z.string()
+})
+
+export type Battle = z.infer<typeof BattleSchema>
+
+const BattlePageSchema = z.object({
+  items: z.array(BattleSchema),
+  total: z.number(),
+  page: z.number(),
+  page_size: z.number()
+})
+
+export type BattlePage = z.infer<typeof BattlePageSchema>
+
+export async function fetchBattles(page: number, pageSize = 20): Promise<BattlePage> {
+  const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) })
+  const response = await fetch(`${API_URL}/battles?${params}`)
+  if (!response.ok) throw new Error('Failed to fetch battles')
+  const body: unknown = await response.json()
+  return BattlePageSchema.parse(body)
+}
+
+export async function createBattle(
+  pokemon1Id: number,
+  pokemon2Id: number
+): Promise<Battle> {
+  const response = await fetch(`${API_URL}/battles`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pokemon1_id: pokemon1Id, pokemon2_id: pokemon2Id })
+  })
+  if (!response.ok) throw new Error('Failed to create battle')
+  const body: unknown = await response.json()
+  return BattleSchema.parse(body)
+}
