@@ -13,7 +13,7 @@ const PokemonSchema = z.object({
   hp: z.number(),
   id: z.number(),
   imageUrl: z.string(),
-  isLegendary: z.boolean().optional(),
+  isLegendary: z.boolean().nullable().optional(),
   name: z.string(),
   specialAttack: z.number(),
   specialDefense: z.number(),
@@ -75,7 +75,8 @@ export async function fetchPokemonPage(
   })
   if (search) searchParams.set('search', search)
 
-  const response = await fetch(`${API_URL}/pokemon?${searchParams}`)
+  const requestUrl = `${API_URL}/pokemon?${searchParams}`
+  const response = await fetch(requestUrl)
   if (!response.ok) throw new Error('Failed to fetch Pokémon')
   const responseBody: unknown = await response.json()
   return PokemonPageSchema.parse(responseBody)

@@ -27,7 +27,9 @@ export const PokemonCard = memo(function PokemonCard({
   const [expanded, setExpanded] = useState(false)
   const [hasImageLoadError, setHasImageLoadError] = useState(false)
 
-  const toggleExpanded = () => setExpanded(previousExpanded => !previousExpanded)
+  const toggleExpanded = () => {
+    setExpanded(previousExpanded => !previousExpanded)
+  }
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {

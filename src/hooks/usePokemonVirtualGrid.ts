@@ -97,7 +97,14 @@ export function usePokemonVirtualGrid({
     }
 
     void fetchNextPage()
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, rowCount, virtualRows])
+  }, [
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    itemCount,
+    rowCount,
+    virtualRows
+  ])
 
   return {
     columns,
