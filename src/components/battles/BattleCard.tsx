@@ -1,7 +1,10 @@
 'use client'
 
+import Image from 'next/image'
+
 import { Badge } from '@/components/ui/badge'
 import type { Battle } from '@/lib/pokemonApi'
+import { capitalizePokemonName } from '@/lib/utils'
 
 interface BattleCardProps {
   battle: Battle
@@ -22,35 +25,66 @@ function formatDate(iso: string) {
   })
 }
 
+function getPokemonSpriteUrl(id: number) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
+}
+
 export function BattleCard({ battle }: BattleCardProps) {
   const config = statusConfig[battle.status]
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/8">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span className="min-w-0 flex-1 truncate text-sm font-semibold capitalize text-white">
-            {battle.pokemon1_name}
-          </span>
-          <span className="shrink-0 text-xs font-bold text-white/40">VS</span>
-          <span className="min-w-0 flex-1 truncate text-right text-sm font-semibold capitalize text-white">
-            {battle.pokemon2_name}
-          </span>
-        </div>
+    <article className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-white/60">
+          Battle Room
+        </h3>
         <Badge className={`shrink-0 border text-xs ${config.className}`}>
           {config.label}
         </Badge>
       </div>
 
-      <div className="mt-2 flex items-center justify-between text-xs text-white/40">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="flex flex-col items-center gap-2">
+          <div className="relative h-20 w-20 rounded-lg bg-white/5">
+            <Image
+              alt={capitalizePokemonName(battle.pokemon1_name)}
+              className="object-contain p-2"
+              fill
+              sizes="80px"
+              src={getPokemonSpriteUrl(battle.pokemon1_id)}
+            />
+          </div>
+          <span className="max-w-full truncate text-sm font-medium text-white">
+            {capitalizePokemonName(battle.pokemon1_name)}
+          </span>
+        </div>
+
+        <span className="text-sm font-bold text-white/50">VS</span>
+
+        <div className="flex flex-col items-center gap-2">
+          <div className="relative h-20 w-20 rounded-lg bg-white/5">
+            <Image
+              alt={capitalizePokemonName(battle.pokemon2_name)}
+              className="object-contain p-2"
+              fill
+              sizes="80px"
+              src={getPokemonSpriteUrl(battle.pokemon2_id)}
+            />
+          </div>
+          <span className="max-w-full truncate text-sm font-medium text-white">
+            {capitalizePokemonName(battle.pokemon2_name)}
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between text-xs text-white/40">
         <span>{formatDate(battle.created_at)}</span>
         {battle.status === 'completed' && battle.winner_name && (
           <span className="font-medium text-green-400">
-            Winner: <span className="capitalize">{battle.winner_name}</span>
-            {battle.total_turns != null && ` · ${battle.total_turns} turns`}
+            Winner: {capitalizePokemonName(battle.winner_name)}
           </span>
         )}
       </div>
-    </div>
+    </article>
   )
 }

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { fetchPokemonPage } from '@/lib/pokemonApi'
 import { getPokemonTypeBadgeClass } from '@/lib/pokemonTypeColors'
-import { cn } from '@/lib/utils'
+import { capitalizePokemonName, cn } from '@/lib/utils'
 import type { Pokemon } from '@/types/pokemon'
 
 interface PokemonPickerStepProps {
@@ -143,7 +143,7 @@ export function PokemonPickerStep({ disabledIds, onSelect, title }: PokemonPicke
                 >
                   <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-white/5">
                     <Image
-                      alt={pokemon.name}
+                      alt={capitalizePokemonName(pokemon.name)}
                       className="object-cover"
                       fill
                       sizes="40px"
@@ -151,8 +151,8 @@ export function PokemonPickerStep({ disabledIds, onSelect, title }: PokemonPicke
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold capitalize text-white">
-                      {pokemon.name}
+                    <p className="truncate text-sm font-semibold text-white">
+                      {capitalizePokemonName(pokemon.name)}
                     </p>
                     <div className="mt-0.5 flex gap-1">
                       {pokemon.types.map(type => (

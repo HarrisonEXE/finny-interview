@@ -9,7 +9,7 @@ import type { PokemonStatMaxes } from '@/types/pokemon'
 import type { Pokemon } from '@/types/pokemon'
 
 import { getPokemonTypeBadgeClass } from '@/lib/pokemonTypeColors'
-import { cn } from '@/lib/utils'
+import { capitalizePokemonName, cn } from '@/lib/utils'
 
 import { PokemonStats } from './PokemonStats'
 
@@ -57,7 +57,7 @@ export const PokemonCard = memo(function PokemonCard({
           </div>
         ) : (
           <Image
-            alt={pokemon.name}
+            alt={capitalizePokemonName(pokemon.name)}
             className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.06]"
             fill
             onError={() => setHasImageLoadError(true)}
@@ -69,7 +69,7 @@ export const PokemonCard = memo(function PokemonCard({
 
       <div className="flex flex-col gap-3 px-6 pb-6 pt-5">
         <h2 className="text-2xl font-semibold tracking-tight text-slate-950 transition-colors duration-300 group-hover:text-indigo-700">
-          {pokemon.name}
+          {capitalizePokemonName(pokemon.name)}
         </h2>
 
         <ul className="flex flex-wrap gap-2">

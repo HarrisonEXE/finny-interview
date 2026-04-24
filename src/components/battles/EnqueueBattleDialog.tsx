@@ -12,6 +12,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { createBattle, fetchBattles } from '@/lib/pokemonApi'
+import { capitalizePokemonName } from '@/lib/utils'
 import type { Pokemon } from '@/types/pokemon'
 
 import { PokemonPickerStep } from './PokemonPickerStep'
@@ -108,7 +109,7 @@ export function EnqueueBattleDialog({ onOpenChange, open }: EnqueueBattleDialogP
           {step === 2 && pokemon1 && (
             <p className="mt-1 text-xs text-white/50">
               Fighter 1:{' '}
-              <span className="font-semibold capitalize text-white">{pokemon1.name}</span>
+              <span className="font-semibold text-white">{capitalizePokemonName(pokemon1.name)}</span>
             </p>
           )}
         </DialogHeader>
