@@ -41,5 +41,6 @@ const TYPE_FOREGROUND: Record<string, string> = {
 }
 
 export function getPokemonTypeBadgeClass(type: string) {
-  return `${TYPE_BACKGROUND[type] ?? 'bg-slate-400'} ${TYPE_FOREGROUND[type] ?? 'text-white'}`
+  const normalized = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
+  return `${TYPE_BACKGROUND[normalized] ?? 'bg-slate-400'} ${TYPE_FOREGROUND[normalized] ?? 'text-white'}`
 }
